@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>聊天室界面示例</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <style>
+        body {
+            /* display: flex;
+            flex-direction: column;
+            align-items: flex-start; */
+            background-size: cover;
+            background-position: center;
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+        #recordButton {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #recordButton:active {
+            background-color: #3e8e41;
+        }
+        #app {
+            margin-top: 20px;
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        pre {
+            color: #666;
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #e1e1e1;
+            white-space: pre-wrap; /* 保持空格和换行符，但是当达到边缘时自动换行 */
+            word-wrap: break-word; /* 在长单词或URLs等不自然断点处允许断行 */
+            overflow-wrap: break-word; /* 同 word-wrap，确保兼容性 */
+        }
+        .message {
+        display: flex;
+        align-items: flex-end;
+        margin-bottom: 10px;
+        }
+
+        .my-message {
+            flex-direction: row-reverse;
+            align-self: flex-end;
+        }
+
+        .message pre {
+            max-width: 60%;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            margin: 0 10px;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+        }
+
+        .my-message pre {
+            background-color: #e0f7fa;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <button id="recordButton">按住录音</button>
+        <template v-for="message in messages">
+            <div v-if="message.sender === 'me'" class="message my-message">
+                <img src="./头像-我.png" alt="My Avatar" class="avatar">
+                <pre>{{ message.text }}</pre>
+            </div>
+            <div v-else class="message">
+                <img src="./头像-老师.png" alt="Teacher's Avatar" class="avatar">
+                <pre>{{ message.text }}</pre>
+            </div>
+        </template>
+    </div>
+    <script>
+        var app = new Vue({
+            el: '#app',
+            data: function() {
+                return {
+                    messages: []
+                }
+            }
+        });
+        document.getElementById('recordButton').addEventListener('mousedown', function() {
+            fetch('http://127.0.0.1:5001/start-recording', {method: 'POST'})
+                .then(response => response.json())
+                .then(data => console.log(data))
+                .catch(error => console.error('Error:', error));
+        });
+    
+        document.getElementById('recordButton').addEventListener('mouseup', function() {
+            fetch('http://127.0.0.1:5001/stop-recording', {method: 'POST'})
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    app.messages.push({ text: data.transcript, sender: 'me' });
+                    app.messages.push({ text: data.assistant, sender: 'teacher' });
+                })
+                .catch(error => console.error('Error:', error));
+        });
+    </script>
+</body>
+
+</html>
+<!-- '''
+1. He don't never misses an opportunity for show his talents.
+2. She can sings very well, but she not have confidence on stage.
+3. They was going to the market when they seen a strange thing.
+4. It's a long time since I didn't see such a beautiful painting.
+5. The teacher gave the students many homeworks to do for the weekend.
+''' -->

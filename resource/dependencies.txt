@@ -1,0 +1,8 @@
+websocket-client
+flask
+flask-cors
+sounddevice
+soundfile
+numpy
+python-dotenv
+google-cloud-speech
