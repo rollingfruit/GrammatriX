@@ -31,7 +31,7 @@
 	2. 大模型：讯飞星火大模型3.0，参考[配置文档](https://xinghuo.xfyun.cn/sparkapi#:~:text=%C2%A50-,%E5%85%8D%E8%B4%B9%E8%AF%95%E7%94%A8,-%E6%9C%8D%E5%8A%A1%E9%87%8F500)。先免费认领，然后把[你控制台](https://console.xfyun.cn/services/bm3)的以下信息粘贴过来。
 		1. 需要按文档填写在截图中![](./static/demo/.png)
 
-	![](./static/demo/星火模型配置.png)
+![](./static/demo/星火模型配置.png)
 
   
 
