@@ -11,15 +11,15 @@ import time
 
 from contextlib import contextmanager
 import SparkApi
-
-
+# 初始化Google Cloud Speech客户端
+from google.oauth2 import service_account
 app = Flask(__name__)
 CORS(app)
 
 #以下密钥信息从控制台获取
-appid = "99b75b13"     #填写控制台中获取的 APPID 信息
-api_secret = "ZWI4MzYzYmY0NThlYjgyMWIzYTA0NTJi"   #填写控制台中获取的 APISecret 信息
-api_key ="aa5ab53d411452d072a5b5575c798cff"    #填写控制台中获取的 APIKey 信息
+appid = ""     #填写控制台中获取的 APPID 信息
+api_secret = ""   #填写控制台中获取的 APISecret 信息
+api_key =""    #填写控制台中获取的 APIKey 信息
 
 #用于配置大模型版本，默认“general/generalv2”
 domain = "generalv3"    # v3.0版本
@@ -35,8 +35,12 @@ channels = 1  # AirPods 3 supports 1 input channel
 recording = []  # 初始化为空列表，用于存储录音数据
 stream = None  # 初始化录音流为空
 recording_count = 0  # 初始化录音计数
+
 # 初始化Google Cloud Speech客户端
-client = speech.SpeechClient()
+# client = speech.SpeechClient()
+
+credentials = service_account.Credentials.from_service_account_file('google_secretkey/service-account-file.json')
+client = speech.SpeechClient(credentials=credentials)
 
 text =[]
 # length = 0
@@ -101,6 +105,7 @@ def stop_recording():
     stream.stop()
     recording_count += 1
     filename = f"recording_{recording_count}.mp3"
+    # filename = f"recording_{recording_count}.pcm"
     # filename = f"recording_saved.mp3"   # 第一步
     # filename = f"recording_3.wav"  # 第二步
     sf.write(filename, np.array(recording), fs)
@@ -165,9 +170,3 @@ if __name__ == '__main__':
     app.run(debug=True,port=5001)
 
 
-
-"""
-
-export GOOGLE_APPLICATION_CREDENTIALS="/Users/xiaoxiao/order_receiving/42-口语大模型/4_back_to_isolate/google_secretKey/service-account-file.json"
-
-"""
