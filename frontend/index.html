@@ -25,7 +25,8 @@
             methods: {
                 fetchMessage() {
                     // 发送GET请求到Flask后端
-                    axios.get('http://localhost:5001/message')
+                    // axios.get('http://localhost:5001/message')
+                    axios.get('/message')
                         .then(response => {
                             // 更新message数据属性
                             this.message = response.data.message;
