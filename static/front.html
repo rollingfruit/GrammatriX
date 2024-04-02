@@ -85,15 +85,16 @@
         <button id="recordButton">按住录音</button>
         <template v-for="message in messages">
             <div v-if="message.sender === 'me'" class="message my-message">
-                <img src="./头像-我.png" alt="My Avatar" class="avatar">
+                <img src="./img/头像-我.png" alt="My Avatar" class="avatar">
                 <pre>{{ message.text }}</pre>
             </div>
             <div v-else class="message">
-                <img src="./头像-老师.png" alt="Teacher's Avatar" class="avatar">
+                <img src="./img/头像-老师.png" alt="Teacher's Avatar" class="avatar">
                 <pre>{{ message.text }}</pre>
             </div>
         </template>
     </div>
+    <script src="https://cdn.jsdelivr.net/gh/xiangyuecn/Recorder@latest/recorder.mp3.min.js"></script>
     <script>
         var app = new Vue({
             el: '#app',
@@ -103,23 +104,68 @@
                 }
             }
         });
-        document.getElementById('recordButton').addEventListener('mousedown', function() {
-            fetch('http://127.0.0.1:5001/start-recording', {method: 'POST'})
-                .then(response => response.json())
-                .then(data => console.log(data))
-                .catch(error => console.error('Error:', error));
+
+        const recordButton = document.getElementById('recordButton');
+        var rec;
+        /**调用open打开录音请求好录音权限**/
+        var recOpen=function(success){
+            rec=Recorder({
+                type:"mp3",sampleRate:16000,bitRate:16
+            });
+
+            rec.open(function(){//打开麦克风授权获得相关资源
+                success&&success();
+            },function(msg,isUserNotAllow){//用户拒绝未授权或不支持
+                console.log((isUserNotAllow?"UserNotAllow，":"")+"无法录音:"+msg);
+            });
+        };
+        recOpen();
+
+        recordButton.addEventListener('mousedown', function() {
+            rec.start();
         });
-    
-        document.getElementById('recordButton').addEventListener('mouseup', function() {
-            fetch('http://127.0.0.1:5001/stop-recording', {method: 'POST'})
-                .then(response => response.json())
-                .then(data => {
-                    console.log(data);
-                    app.messages.push({ text: data.transcript, sender: 'me' });
-                    app.messages.push({ text: data.assistant, sender: 'teacher' });
-                })
-                .catch(error => console.error('Error:', error));
+
+        recordButton.addEventListener('mouseup', function() {
+            rec.stop(function(blob,duration){
+                //已经拿到blob文件对象想干嘛就干嘛：立即播放、上传、下载保存
+                var formData = new FormData();
+                formData.append('audioData', blob);
+                // Send the audio data to the server
+                fetch('http://127.0.0.1:5001/upload-audio', {
+                    method: 'POST',
+                    body: formData
+                }).then(response => response.json())
+                    .then(data => {
+                        console.log(data);
+                        app.messages.push({ text: data.transcript, sender: 'me' });
+                        app.messages.push({ text: data.assistant, sender: 'teacher' });
+                }).catch(error => {
+                    console.error('Error uploading audio:', error);
+                });
+            },function(msg){
+                console.log("录音失败:"+msg);
+                rec.close();
+                rec=null;
+            });
         });
+
+<!--        document.getElementById('recordButton').addEventListener('mousedown', function() {-->
+<!--            fetch('http://127.0.0.1:5001/start-recording', {method: 'POST'})-->
+<!--                .then(response => response.json())-->
+<!--                .then(data => console.log(data))-->
+<!--                .catch(error => console.error('Error:', error));-->
+<!--        });-->
+<!--    -->
+<!--        document.getElementById('recordButton').addEventListener('mouseup', function() {-->
+<!--            fetch('http://127.0.0.1:5001/stop-recording', {method: 'POST'})-->
+<!--                .then(response => response.json())-->
+<!--                .then(data => {-->
+<!--                    console.log(data);-->
+<!--                    app.messages.push({ text: data.transcript, sender: 'me' });-->
+<!--                    app.messages.push({ text: data.assistant, sender: 'teacher' });-->
+<!--                })-->
+<!--                .catch(error => console.error('Error:', error));-->
+<!--        });-->
     </script>
 </body>
 

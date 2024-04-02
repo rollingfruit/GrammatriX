@@ -12,26 +12,29 @@
 当前实现技术：
 - 后端：python 的 Flask
 - 前端：Vue
-  ![](./static/demo/演示-前端.png)
+  ![](resource/demo/演示-前端.png)
 
-![](./static/demo/演示截图.png)
+![](resource/demo/演示截图.png)
 
 ## 环境准备
 
   
 
-确保你的机器上安装了conda和Python 3.9环境。
-调用的第三方工具，需要自己账号获得配置信息。有免费额度，前期开发个人足够：
-	1. 音转文：Google Speech-to-Text，参考配置文档
-		1. 按官方步骤把.json文件放入本地并按路径配置，也可直接输入下列命令暂时用我的配置文件。
-			1. mac的生效命令：`export GOOGLE_APPLICATION_CREDENTIALS="./resource/service-account-file.json"`
-			2. win的生效命令，cmd中：`set GOOGLE_APPLICATION_CREDENTIALS=.\resource\service-account-file.json
-		2. 也可使用星火的”音转文“，暂未尝试
-`
-	2. 大模型：讯飞星火大模型3.0，参考[配置文档](https://xinghuo.xfyun.cn/sparkapi#:~:text=%C2%A50-,%E5%85%8D%E8%B4%B9%E8%AF%95%E7%94%A8,-%E6%9C%8D%E5%8A%A1%E9%87%8F500)。先免费认领，然后把[你控制台](https://console.xfyun.cn/services/bm3)的以下信息粘贴过来。
-		1. 需要按文档填写在截图中![](./static/demo/.png)
+确保你的机器上安装了conda和Python 3.9环境。在项目路径创建`api_keys`文件夹。
 
-![](./static/demo/星火模型配置.png)
+调用的第三方工具，需要自己账号获得配置信息。有免费额度，前期开发个人足够：
+1. 音转文：Google Speech-to-Text，参考配置文档
+   1. 按官方步骤把.json文件放入本地并按路径配置，将`service-account-file.json`放在`api_keys`文件夹下。
+   2. 也可使用星火的”音转文“，暂未尝试
+2. 大模型：讯飞星火大模型3.0，参考[配置文档](https://xinghuo.xfyun.cn/sparkapi#:~:text=%C2%A50-,%E5%85%8D%E8%B4%B9%E8%AF%95%E7%94%A8,-%E6%9C%8D%E5%8A%A1%E9%87%8F500)。先免费认领，然后把[你控制台](https://console.xfyun.cn/services/bm3)的以下信息粘贴过来。
+在api_keys文件夹下创建SparkApi.json文件，并在其中写入对应的api信息：
+	```json
+	{
+	  "appid": "",
+	  "api_key": "",
+	  "api_secret": ""
+	}
+	```
 
   
 

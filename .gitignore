@@ -1,1 +1,3 @@
-service-account-file.json
+api_keys/
+.idea
+__pycache__
