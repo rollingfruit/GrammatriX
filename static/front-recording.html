@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>AI语法纠错聊天室</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <style>
+        body {
+            background: linear-gradient(to right, rgba(20, 19, 19, 0.557), rgba(30, 29, 29, 0.122)), url('./background.jpg') center/cover;
+            margin: 0;
+            padding: 20px;
+            font-family: 'Roboto', sans-serif;
+        }
+        #app {
+            /* max-width: 1200px; */
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .chat-header {
+            background-color: #3f51b5;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .top-image {
+            display: block; /* 确保图片作为块级元素处理 */
+            /* width: 40%;  */
+            width: 67%; /* 或者你可以根据需要调整宽度 */
+            height: 240px; /* 这里设置你希望的固定高度 */
+            margin: 0 auto 20px auto; /* 上下居中显示，下方留出20px的间隔 */
+            border-radius: 8px; /* 圆角效果 */
+            object-fit: cover; /* 确保图片以它的中心为焦点来填充区域，不会变形 */
+        }
+
+        pre {
+            color: #666;
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #e1e1e1;
+            white-space: pre-wrap; /* 保持空格和换行符，但是当达到边缘时自动换行 */
+            word-wrap: break-word; /* 在长单词或URLs等不自然断点处允许断行 */
+            overflow-wrap: break-word; /* 同 word-wrap，确保兼容性 */
+        }
+        .messages {
+            padding: 20px;
+            height: 400px;
+            overflow-y: scroll;
+        }
+        .message-input {
+            display: flex;
+            border-top: 1px solid #ddd;
+        }
+        .message-input input {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-right: 1px solid #ddd;
+        }
+        .input-area {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+        #recordButton {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        #recordButton:active {
+            background-color: #3e8e41;
+        }
+        .message {
+            display: flex;
+            align-items: flex-end;
+            margin-bottom: 10px;
+        }
+        .my-message {
+            flex-direction: row-reverse;
+            align-self: flex-end;
+        }
+        .message pre {
+            max-width: 60%;
+            margin: 0 10px;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+        }
+        .my-message pre {
+            background-color: #e0f7fa;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 20px;
+        }
+
+        .slider-container {
+            width: 150px;
+            position: fixed; /* 固定位置 */
+            right: 20px; /* 页面右边距 */
+            bottom: 20px; /* 页面底部距离 */
+            text-align: center;
+            background-color: #f8f9fa; /* 轻微的背景色增加对比 */
+            border-radius: 10px; /* 圆角边框 */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2); /* 轻微的阴影效果 */
+            padding: 10px; /* 内边距 */
+        }
+
+        #modeSlider {
+            -webkit-appearance: none; /* 移除默认样式 */
+            width: 100%;
+            height: 5px;
+            background: #ddd;
+            outline: none;
+            opacity: 0.7;
+            -webkit-transition: .2s;
+            transition: opacity .2s;
+            margin: 0; /* 移除默认外边距 */
+        }
+
+        #modeSlider:hover {
+            opacity: 1;
+        }
+
+        #modeSlider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #007bff;
+            cursor: pointer;
+            border-radius: 50%; /* 圆形滑块 */
+        }
+
+        #modeSlider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #007bff;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+
+        .labels {
+            display: flex;
+            justify-content: space-between;
+            color: #666;
+            font-size: 14px;
+        }
+
+
+    </style>
+</head>
+<body>
+    <img src="./top.jpg" alt="Top Image" class="top-image">
+    <div id="app">
+        <!-- <div class="chat-header">聊天室</div> -->
+        <template v-for="message in messages">
+            <div v-if="message.sender === 'me'" class="message my-message">
+                <img src="./头像-我.png" alt="My Avatar" class="avatar">
+                <pre>{{ message.text }}</pre>
+            </div>
+            <div v-else class="message">
+                <img src="./ai.png" alt="Teacher's Avatar" class="avatar">
+                <pre>{{ message.text }}</pre>
+            </div>
+        </template>
+        <div class="input-area">
+            <button id="recordButton">按住录音</button>
+            <!-- <button id="togglePromptButton">ai对话</button> -->
+            <!-- 滑块控件，min设置为1，max设置为2，代表两个不同的Prompt -->
+            <!-- <input id="promptSlider" type="range" min="1" max="2" value="1"> -->
+
+            <div class="slider-container">
+                <input type="range" id="modeSlider" min="1" max="2" value="1">
+                <div class="labels">
+                    <span>ai聊天</span><span>语法纠错</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/gh/xiangyuecn/Recorder@latest/recorder.mp3.min.js"></script>
+    <script>
+        var app = new Vue({
+            el: '#app',
+            data: function() {
+                return {
+                    messages: [{text: "Hello, please start a conversation with me!"}]
+                }
+            }
+        });
+        // document.getElementById('recordButton').addEventListener('mousedown', function() {
+        //     fetch('http://127.0.0.1:5001/start-recording', {method: 'POST'})
+        //         .then(response => response.json())
+        //         .then(data => console.log(data))
+        //         .catch(error => console.error('Error:', error));
+        // });
+        // document.getElementById('recordButton').addEventListener('mouseup', function() {
+        //     fetch('http://127.0.0.1:5001/stop-recording', {method: 'POST'})
+        //         .then(response => response.json())
+        //         .then(data => {
+        //             console.log(data);
+        //             app.messages.push({ text: data.transcript, sender: 'me' });
+        //             app.messages.push({ text: data.assistant, sender: 'teacher' });
+        //         })
+        //         .catch(error => console.error('Error:', error));
+        // });
+        
+        const recordButton = document.getElementById('recordButton');
+        var rec;
+        /**调用open打开录音请求好录音权限**/
+        var recOpen=function(success){
+            rec=Recorder({
+                type:"mp3",sampleRate:16000,bitRate:16
+            });
+
+            rec.open(function(){//打开麦克风授权获得相关资源
+                success&&success();
+            },function(msg,isUserNotAllow){//用户拒绝未授权或不支持
+                console.log((isUserNotAllow?"UserNotAllow，":"")+"无法录音:"+msg);
+            });
+        };
+        recOpen();
+
+        recordButton.addEventListener('mousedown', function() {
+            rec.start();
+        });
+
+        recordButton.addEventListener('mouseup', function() {
+            rec.stop(function(blob,duration){
+                //已经拿到blob文件对象想干嘛就干嘛：立即播放、上传、下载保存
+                var formData = new FormData();
+                formData.append('audioData', blob);
+                // Send the audio data to the server
+                fetch('http://127.0.0.1:5001/upload-audio', {
+                    method: 'POST',
+                    body: formData
+                }).then(response => response.json())
+                    .then(data => {
+                        console.log(data);
+                        app.messages.push({ text: data.transcript, sender: 'me' });
+                        app.messages.push({ text: data.assistant, sender: 'teacher' });
+                }).catch(error => {
+                    console.error('Error uploading audio:', error);
+                });
+            },function(msg){
+                console.log("录音失败:"+msg);
+                rec.close();
+                rec=null;
+            });
+        });
+
+        // 假设初始状态是Prompt2
+        let isPrompt1 = false;
+
+        document.getElementById('modeSlider').addEventListener('change', function() {
+            // 获取滑块的值
+            const promptValue = this.value;
+            let promptName = promptValue === "1" ? "ai聊天" : "语法纠错";
+            
+            // 发送请求到后端以切换Prompt
+            fetch('http://127.0.0.1:5001/toggle-prompt', {method: 'POST'})
+                .then(response => response.json())
+                .then(data => {
+                    console.log(`已切换到: ${promptName}`);
+                    // 根据需要进行其他UI更新或逻辑处理
+
+                    app.messages.push({ text: data.message, sender: 'me' });
+                    app.messages.push({ text: data.assistant, sender: 'teacher' });
+                })
+                .catch(error => console.error('Error:', error));
+        });
+
+    </script>
+</body>
+</html>
+
+
+
+<!-- 1. 寻求建议：“我最近在准备一个演讲。你认为在这个话题上，最重要的讨论点应该包括什么？” 
+     2. 寻求指导：“我对未来的职业路径感到困惑，如何准备？”
+-->
